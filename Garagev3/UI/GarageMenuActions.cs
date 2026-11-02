@@ -1,33 +1,33 @@
 using Garagev3.Models;
-using Garagev3.Services;
+using Garagev3.Interfaces;
 using static Garagev3.UI.ConsoleInput;
 
 namespace Garagev3.UI;
 
 public class GarageMenuActions
 {
-    private readonly Garage garage;
+    private readonly IHandler handler;
 
-    public GarageMenuActions(Garage garage)
+    public GarageMenuActions(IHandler handler)
     {
-        ArgumentNullException.ThrowIfNull(garage);
-        this.garage = garage;
+        ArgumentNullException.ThrowIfNull(handler);
+        this.handler = handler;
     }
 
     public void ParkVehicle()
     {
-        if (garage.Count == garage.Capacity)
+        if (handler.Count == handler.Capacity)
         {
             Console.WriteLine("The garage is full.");
             return;
         }
 
-        Console.WriteLine(garage.Park(VehicleForm.ReadVehicle()).Message);
+        Console.WriteLine(handler.Park(VehicleForm.ReadVehicle()).Message);
     }
 
     public void RemoveVehicle()
     {
-        List<Vehicle> vehicles = garage.GetAllVehicles();
+        IReadOnlyList<IVehicle> vehicles = handler.GetAllVehicles();
         if (vehicles.Count == 0)
         {
             Console.WriteLine("No vehicles parked.");
@@ -51,8 +51,8 @@ public class GarageMenuActions
                 continue;
             }
 
-            Vehicle vehicle = vehicles[selection - 1];
-            OperationResult result = garage.Remove(vehicle.RegistrationNumber);
+            IVehicle vehicle = vehicles[selection - 1];
+            OperationResult result = handler.Remove(vehicle.RegistrationNumber);
             Console.WriteLine($"{vehicle.RegistrationNumber}: {result.Message}");
             return;
         }
@@ -61,44 +61,27 @@ public class GarageMenuActions
     public void SearchVehicles()
     {
         VehicleSearchCriteria? criteria = VehicleSearchForm.ReadCriteria();
-        if (criteria is not null) DisplayVehicles(garage.Search(criteria));
+        if (criteria is not null) DisplayVehicles(handler.Search(criteria));
     }
 
     public void DisplayTypeCounts()
     {
-        var counts = garage.GetVehicleTypeCounts();
+        var counts = handler.GetVehicleTypeCounts();
         if (counts.Count == 0) Console.WriteLine("No vehicles parked.");
         foreach (var entry in counts) Console.WriteLine($"{entry.Key}: {entry.Value}");
     }
 
-    public static void DisplayVehicles(List<Vehicle> vehicles)
+    public static void DisplayVehicles(IReadOnlyList<IVehicle> vehicles)
     {
         if (vehicles.Count == 0) Console.WriteLine("No matching vehicles found.");
-        foreach (Vehicle vehicle in vehicles) Console.WriteLine(vehicle);
+        foreach (IVehicle vehicle in vehicles) Console.WriteLine(vehicle);
     }
 
     public void AddSampleVehicles()
     {
-        List<Vehicle> samples =
-        [
-            new Motorcycle("MCA001", "Pink", 3, 600),
-            new Airplane("AIR001", "White", 3, 2),
-            new Car("ABC123", "Black", 4, FuelType.Gasoline),
-            new Bus("BUS001", "Red", 6, 40),
-            new Boat("BOA001", "Blue", 0, 8.5)
-        ];
-        foreach (Vehicle vehicle in samples)
+        foreach (OperationResult result in handler.AddSampleVehicles())
         {
-            Console.WriteLine($"{vehicle.RegistrationNumber}: {garage.Park(vehicle).Message}");
+            Console.WriteLine(result.Message);
         }
     }
-
 }
-
-
-
-
-
-
-
-

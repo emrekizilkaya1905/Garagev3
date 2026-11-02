@@ -4,7 +4,7 @@ A C# console application for managing a garage with a fixed capacity. Being deve
 
 ## Implementation status
 
-This version currently retains the List-based implementation copied from Garagev2. The console UI, input forms and Garage service remain separate classes, but the UI still accesses Garage directly. The required generic Garage<T>, interfaces, GarageHandler layer and separate unit test project are planned and are not implemented yet. See YAPILACAKLAR.md for the Turkish development checklist.
+This version currently retains the List-based implementation copied from Garagev2. The UI accesses garage operations through IHandler, implemented by GarageHandler. IUI defines the application entry point and Vehicle implements IVehicle. Program.cs creates and connects the handler and UI objects. Generic Garage<T>, IEnumerable<T> and a separate unit test project are still planned. See YAPILACAKLAR.md for the Turkish development checklist.
 
 ## Requirements
 
@@ -92,4 +92,5 @@ The garage stores vehicles in a private `List<Vehicle>`. Garage capacity is a se
 ## Data lifetime
 
 Garage data is stored in memory for the current session. Closing the application discards the data. File persistence and multiple garages are not implemented.
+
 

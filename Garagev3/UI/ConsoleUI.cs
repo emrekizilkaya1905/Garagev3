@@ -1,6 +1,4 @@
 using Garagev3.Interfaces;
-using Garagev3.Models;
-using Garagev3.Services;
 using static Garagev3.UI.ConsoleInput;
 using static Garagev3.UI.GarageMenuActions;
 
@@ -8,20 +6,31 @@ namespace Garagev3.UI;
 
 public class ConsoleUI : IUI
 {
+    private readonly IHandler handler;
+    private readonly GarageMenuActions actions;
+
+    public ConsoleUI(IHandler handler, GarageMenuActions actions)
+    {
+        ArgumentNullException.ThrowIfNull(handler);
+        ArgumentNullException.ThrowIfNull(actions);
+        this.handler = handler;
+        this.actions = actions;
+    }
+
     public void Run()
     {
         try
         {
             Console.WriteLine("=== Garage 3.0 ===");
             Console.WriteLine("Create your garage to get started. Use /cancel to exit.");
-            var garage = new Garage(ReadInteger("Capacity", 1));
-            var actions = new GarageMenuActions(garage);
-            Console.WriteLine($"Garage created with {garage.Capacity} spaces.");
+            handler.CreateGarage(ReadInteger("Capacity", 1));
+
+            Console.WriteLine($"Garage created with {handler.Capacity} spaces.");
 
             while (true)
             {
                 Console.WriteLine("\n=== Garage menu ===");
-                Console.WriteLine($"Spaces used: {garage.Count}/{garage.Capacity}");
+                Console.WriteLine($"Spaces used: {handler.Count}/{handler.Capacity}");
                 Console.WriteLine("1. List vehicles\n2. List vehicle type counts\n3. Park vehicle\n4. Remove vehicle\n5. Find by registration number\n6. Search vehicles\n7. Add sample vehicles\n0. Exit");
                 Console.Write("Select an option: ");
                 string choice = ReadLine();
@@ -31,12 +40,12 @@ public class ConsoleUI : IUI
                 {
                     switch (choice)
                     {
-                        case "1": DisplayVehicles(garage.GetAllVehicles()); break;
+                        case "1": DisplayVehicles(handler.GetAllVehicles()); break;
                         case "2": actions.DisplayTypeCounts(); break;
                         case "3": actions.ParkVehicle(); break;
                         case "4": actions.RemoveVehicle(); break;
                         case "5":
-                            Vehicle? vehicle = garage.FindByRegistrationNumber(ReadText("Registration number"));
+                            IVehicle? vehicle = handler.FindByRegistrationNumber(ReadText("Registration number"));
                             Console.WriteLine(vehicle?.ToString() ?? "No matching vehicle found.");
                             break;
                         case "6": actions.SearchVehicles(); break;
@@ -62,6 +71,7 @@ public class ConsoleUI : IUI
         Console.WriteLine("Goodbye!");
     }
 }
+
 
 
 
