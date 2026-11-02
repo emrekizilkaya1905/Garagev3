@@ -1,3 +1,4 @@
+using Garagev3.Interfaces;
 using Garagev3.Models;
 using Garagev3.Services;
 using static Garagev3.UI.ConsoleInput;
@@ -5,7 +6,7 @@ using static Garagev3.UI.GarageMenuActions;
 
 namespace Garagev3.UI;
 
-public class ConsoleUI
+public class ConsoleUI : IUI
 {
     public void Run()
     {
@@ -61,6 +62,7 @@ public class ConsoleUI
         Console.WriteLine("Goodbye!");
     }
 }
+
 
 
 

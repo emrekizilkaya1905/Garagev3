@@ -1,4 +1,5 @@
+using Garagev3.Interfaces;
 using Garagev3.UI;
 
-new ConsoleUI().Run();
-
+IUI ui = new ConsoleUI();
+ui.Run();

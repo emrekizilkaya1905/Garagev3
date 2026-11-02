@@ -1,7 +1,8 @@
+using Garagev3.Interfaces;
 using System.Text.RegularExpressions;
 namespace Garagev3.Models;
 
-public abstract class Vehicle
+public abstract class Vehicle : IVehicle
 {
     public string RegistrationNumber { get; }
     public string Color { get; }
@@ -45,6 +46,8 @@ public abstract class Vehicle
         return $"{GetType().Name} | Registration number: {RegistrationNumber} | Color: {Color} | Number of wheels: {NumberOfWheels}";
     }
 }
+
+
 
 
 
