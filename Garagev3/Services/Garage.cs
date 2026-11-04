@@ -1,10 +1,12 @@
+using System.Collections;
+using Garagev3.Interfaces;
 using Garagev3.Models;
 
 namespace Garagev3.Services;
 
-public class Garage
+public class Garage<T> : IEnumerable<T> where T : class, IVehicle
 {
-    private readonly List<Vehicle> vehicles = new();
+    private readonly List<T> vehicles = new();
 
     public int Capacity { get; }
     public int Count => vehicles.Count;
@@ -19,7 +21,7 @@ public class Garage
         Capacity = capacity;
     }
 
-    public OperationResult Park(Vehicle vehicle)
+    public OperationResult Park(T vehicle)
     {
         ArgumentNullException.ThrowIfNull(vehicle);
 
@@ -44,7 +46,7 @@ public class Garage
             return new OperationResult(false, "Registration number cannot be empty.");
         }
 
-        Vehicle? vehicle = FindByRegistrationNumber(registrationNumber);
+        T? vehicle = FindByRegistrationNumber(registrationNumber);
         if (vehicle is null)
         {
             return new OperationResult(false, "No vehicle with this registration number was found.");
@@ -54,7 +56,7 @@ public class Garage
         return new OperationResult(true, "Vehicle removed successfully.");
     }
 
-    public Vehicle? FindByRegistrationNumber(string registrationNumber)
+    public T? FindByRegistrationNumber(string registrationNumber)
     {
         if (string.IsNullOrWhiteSpace(registrationNumber))
         {
@@ -65,7 +67,7 @@ public class Garage
             string.Equals(vehicle.RegistrationNumber, registrationNumber.Trim(), StringComparison.OrdinalIgnoreCase));
     }
 
-    public List<Vehicle> GetAllVehicles()
+    public List<T> GetAllVehicles()
     {
         return vehicles.ToList();
     }
@@ -78,7 +80,7 @@ public class Garage
     }
 
 
-    public List<Vehicle> Search(VehicleSearchCriteria criteria)
+    public List<T> Search(VehicleSearchCriteria criteria)
     {
         ArgumentNullException.ThrowIfNull(criteria);
 
@@ -87,9 +89,9 @@ public class Garage
             throw new ArgumentOutOfRangeException(nameof(criteria), "Number of wheels cannot be negative.");
         }
 
-        if (criteria.VehicleType is not null && !typeof(Vehicle).IsAssignableFrom(criteria.VehicleType))
+        if (criteria.VehicleType is not null && !typeof(IVehicle).IsAssignableFrom(criteria.VehicleType))
         {
-            throw new ArgumentException("Vehicle type must inherit from Vehicle.", nameof(criteria));
+            throw new ArgumentException("Vehicle type must implement IVehicle.", nameof(criteria));
         }
 
         return GetAllVehicles().Where(vehicle =>
@@ -101,7 +103,14 @@ public class Garage
             (criteria.VehicleType is null || criteria.VehicleType.IsInstanceOfType(vehicle)))
             .ToList();
     }
+
+    public IEnumerator<T> GetEnumerator()
+    {
+        return vehicles.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
 }
-
-
-

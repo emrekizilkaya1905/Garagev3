@@ -5,7 +5,7 @@ namespace Garagev3.Services;
 
 public class GarageHandler : IHandler
 {
-    private Garage? garage;
+    private Garage<IVehicle>? garage;
 
     public bool HasGarage => garage is not null;
     public int Capacity => garage?.Capacity ?? 0;
@@ -13,17 +13,16 @@ public class GarageHandler : IHandler
 
     public void CreateGarage(int capacity)
     {
-        garage = new Garage(capacity);
+        garage = new Garage<IVehicle>(capacity);
     }
 
     public OperationResult Park(IVehicle vehicle)
     {
         ArgumentNullException.ThrowIfNull(vehicle);
         if (garage is null) return NoGarageResult();
-        if (vehicle is not Vehicle concreteVehicle)
-            return new OperationResult(false, "This vehicle implementation is not supported by the garage.");
 
-        return garage.Park(concreteVehicle);
+
+        return garage.Park(vehicle);
     }
 
     public OperationResult Remove(string registrationNumber)
@@ -78,3 +77,4 @@ public class GarageHandler : IHandler
         return new OperationResult(false, "Create a garage first.");
     }
 }
+

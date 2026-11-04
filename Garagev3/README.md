@@ -4,7 +4,7 @@ A C# console application for managing a garage with a fixed capacity. Being deve
 
 ## Implementation status
 
-This version currently retains the List-based implementation copied from Garagev2. The UI accesses garage operations through IHandler, implemented by GarageHandler. IUI defines the application entry point and Vehicle implements IVehicle. Program.cs creates and connects the handler and UI objects. Generic Garage<T>, IEnumerable<T> and a separate unit test project are still planned. See YAPILACAKLAR.md for the Turkish development checklist.
+This version uses a generic Garage<T> constrained to reference types implementing IVehicle, backed by a private List<T>. Garage<T> implements IEnumerable<T> for foreach iteration. The UI accesses garage operations through IHandler, implemented by GarageHandler. IUI defines the application entry point and Vehicle implements IVehicle. Program.cs creates and connects the handler and UI objects. GarageHandler manages a Garage<IVehicle>. Garagev3.Tests contains xUnit tests for the public Garage API, including all 16 combinations of the four search filters. See YAPILACAKLAR.md for the Turkish development checklist.
 
 ## Requirements
 
@@ -76,7 +76,7 @@ UI/VehicleForm.cs              Vehicle creation from user input
 UI/VehicleSearchForm.cs        Search menu and filter input
 ```
 
-The garage stores vehicles in a private `List<Vehicle>`. Garage capacity is a separate, fixed limit checked before adding a vehicle; it is not the internal capacity of the list. Each vehicle occupies one space. Removing a vehicle removes its list entry and makes space available again. Listing and search methods return new lists so callers cannot modify the internal collection.
+The generic garage stores vehicles in a private `List<T>` and exposes generic and non-generic enumerators. Garage capacity is a separate, fixed limit checked before adding a vehicle; it is not the internal capacity of the list. Each vehicle occupies one space. Removing a vehicle removes its list entry and makes space available again. Listing and search methods return new lists so callers cannot modify the internal collection.
 
 ## Quick manual check
 
@@ -94,3 +94,14 @@ The garage stores vehicles in a private `List<Vehicle>`. Garage capacity is a se
 Garage data is stored in memory for the current session. Closing the application discards the data. File persistence and multiple garages are not implemented.
 
 
+
+
+## Automated tests
+
+From the solution directory:
+
+```powershell
+dotnet test Garagev3.slnx
+```
+
+Garagev3.Tests references the application project. Tests cover capacity, parking, duplicate registration numbers, removal, lookup, collection isolation, type counts, optional search filters and both enumeration interfaces. Console flows were also checked separately using scripted input.
